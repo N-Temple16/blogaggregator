@@ -6,6 +6,47 @@ import (
 	"path/filepath"
 )
 
+const configFileName = ".gatorconfig.json"
+
+type Config struct {
+	DbUrl           string `json:"db_url"`
+	CurrentUserName string `json:"current_user_name"`
+}
+
+func (c *Config) SetUser(username string) error {
+	c.CurrentUserName = username
+	err := write(*c)
+	
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Read() (Config, error) {
+	filepath, err := getConfigFilePath()
+	if err != nil {
+		return Config{}, err
+	}
+
+	content, err := os.Open(filepath)
+	if err != nil {
+		return Config{}, err
+	}
+	defer content.Close()
+
+	decoder := json.NewDecoder(content)
+	cfg := Config{}
+	err = decoder.Decode(&cfg)
+	if err != nil {
+		return Config{}, err
+	}
+
+
+	return cfg, nil
+}
+
 func getConfigFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -21,52 +62,20 @@ func write(cfg Config) error {
 		return err
 	}
 
-	jsonData, err := json.Marshal(cfg)
+	jsonData, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}
+	defer jsonData.Close()
 
-	err = os.WriteFile(filepath, jsonData, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-const configFileName = ".gatorconfig.json"
-
-type Config struct {
-	DbUrl string `json:"db_url"`
-	CurrentUserName string `json:"current_user_name"`
-}
-
-func Read() (Config, error) {
-	filepath, err := getConfigFilePath()
-	if err != nil {
-		return Config{}, err
-	}
-
-	content, err := os.ReadFile(filepath)
-	if err != nil {
-		return Config{}, err
-	}
-
-	var config Config
-	if err := json.Unmarshal(content, &config); err != nil {
-		return Config{}, err
-	}
-
-	return config, nil
-}
-
-func (c *Config) SetUser(username string) error {
-	c.CurrentUserName = username
-	err := write(*c)
-	
+	encoder := json.NewEncoder(jsonData)
+	err = encoder.Encode(cfg)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
+
+
+
