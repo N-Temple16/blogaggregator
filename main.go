@@ -6,6 +6,9 @@ import (
 	"os"
 )
 
+// CONNECTION STRING
+// postgres://postgres:postgres@localhost:5432/gator
+
 type state struct {
 	cfg *config.Config
 }
