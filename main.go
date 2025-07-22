@@ -1,15 +1,20 @@
 package main
 
 import (
-	"blogaggregator/internal/config"
+	"database/sql"
 	"fmt"
 	"os"
+
+	"blogaggregator/internal/config"
+	"blogaggregator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 // CONNECTION STRING
 // postgres://postgres:postgres@localhost:5432/gator
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
@@ -17,9 +22,20 @@ func main() {
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Println("Error:", err)
+		os.Exit(1)
 	}
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		fmt.Println("Error connecting to database:", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	dbQueries := database.New(db)
+
 	programState := &state{
+		db:  dbQueries,
 		cfg: &cfg,
 	}
 
@@ -28,6 +44,7 @@ func main() {
     }
 
 	commands.register("login", handlerLogin)
+	commands.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
 		fmt.Println("You must provide a program and command name")
@@ -38,8 +55,8 @@ func main() {
 	argsSlice := os.Args[2:]
 
 	command := command{
-		cmdName,
-		argsSlice,
+		Name:        cmdName,
+		StringSlice: argsSlice,
     }
 
 	err = commands.run(programState, command)
