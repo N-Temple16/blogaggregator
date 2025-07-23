@@ -45,6 +45,7 @@ func main() {
 
 	commands.register("login", handlerLogin)
 	commands.register("register", handlerRegister)
+	commands.register("reset", handlerReset)
 
 	if len(os.Args) < 2 {
 		fmt.Println("You must provide a program and command name")
