@@ -48,6 +48,8 @@ func main() {
 	commands.register("reset", handlerReset)
 	commands.register("users", handlerListUsers)
 	commands.register("agg", handlerAggregator)
+	commands.register("addfeed", handlerAddFeed)
+	commands.register("feeds", handlerListFeeds)
 
 	if len(os.Args) < 2 {
 		fmt.Println("You must provide a program and command name")
