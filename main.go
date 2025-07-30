@@ -50,6 +50,8 @@ func main() {
 	commands.register("agg", handlerAggregator)
 	commands.register("addfeed", handlerAddFeed)
 	commands.register("feeds", handlerListFeeds)
+	commands.register("follow", handlerFollow)
+	commands.register("following", handlerFollowing)
 
 	if len(os.Args) < 2 {
 		fmt.Println("You must provide a program and command name")

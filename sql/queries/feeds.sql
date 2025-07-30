@@ -23,3 +23,6 @@ FROM
     feeds
 JOIN
     users ON feeds.user_id = users.id;
+
+-- name: GetFeedWithUrl :one
+SELECT * FROM feeds WHERE url = $1;
