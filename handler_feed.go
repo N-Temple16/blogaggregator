@@ -8,10 +8,8 @@ import (
 	"time"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
-	currentUser := s.cfg.CurrentUserName
-
-	user, err := s.db.GetUser(context.Background(), currentUser)
+func handlerAddFeed(s *state, cmd command, user database.User) error {
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
 		return fmt.Errorf("couldn't find user: %w", err)
 	}

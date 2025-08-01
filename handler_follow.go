@@ -8,10 +8,8 @@ import (
 	"time"
 )
 
-func handlerFollow(s *state, cmd command) error {
-	currentUser := s.cfg.CurrentUserName
-
-	user, err := s.db.GetUser(context.Background(), currentUser)
+func handlerFollow(s *state, cmd command, user database.User) error {
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
 		return fmt.Errorf("couldn't find user: %w", err)
 	}
@@ -41,12 +39,16 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
-	currentUser := s.cfg.CurrentUserName
+func handlerFollowing(s *state, cmd command, user database.User) error {
 
-	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), currentUser)
+	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("failed to get feed follows for the given user: %w", err)
+	}
+
+	if len(feedFollows) == 0 {
+		fmt.Println("No feed follows found for this user.")
+		return nil
 	}
 
 	for _, feed := range feedFollows {
